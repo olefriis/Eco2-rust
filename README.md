@@ -58,33 +58,32 @@ see. For example:
 ```
 $ eco2 scan
 Scanning for 2 minutes. Please wait.
-0;0:04:2F:C0:F2:58;eTRV - address: 66:66:64:35:37:30
-0;0:04:2F:06:24:D1;eTRV - address: 61:61:35:66:61:39
-0;0:04:2F:C0:F3:0C;eTRV - address: 33:62:31:63:64:66
-0;0:04:2F:06:24:DD;eTRV - address: 35:39:66:66:61:64
+0:04:2F:C0:F2:58
+0:04:2F:06:24:D1
+0:04:2F:C0:F3:0C
+0:04:2F:06:24:DD
 ```
 
 ### Reading from a thermostat
 You can now read from any of the thermostats shown by the `scan` command. You do
-that by taking one of the values in the first column shown by the `scan`
-output - for example `0;0:04:2F:06:24:D1;eTRV` from line 2 in the output above.
+that by taking one of the values shown by the `scan` output - for example
+`0:04:2F:06:24:D1` the output above. (In fact, this corresponds to the "MAC Address"
+that you can see in the Eco 2 app by choosing your thermostat, going to Settings,
+and choosing System Information.)
 
-If this is the first time you connect to the thermostat, the `scan` command needs
+If this is the first time you connect to the thermostat, the `read` command needs
 to be able to read a secret key from the thermostat. As you may remember when
 setting up your thermostat from the app, you are required to click the timer button
 on the thermostat. The app asks you to do this and magically finds out when you have
 clicked the button. This tool instead asks you to click the button and subsequently
 press enter on your keyboard.
 
-Also, remember to put the thermostat serial number in quotes, or your shell will get
-very confused.
-
 Example:
 
 ```
-$ eco2 read '0;0:04:2F:06:24:D1;eTRV'
-Reading from 0;0:04:2F:06:24:D1;eTRV for the first time...
-.....Got our peripheral: 0;0:04:2F:06:24:D1;eTRV
+$ eco2 read 0:04:2F:06:24:D1
+Reading from 0:04:2F:06:24:D1 for the first time...
+.....Found thermostat
 This is the first time you connect to this thermostat, so we need to fetch the secret key.
 Please click the timer button on the thermostat, then press enter on your keyboard to continue connecting.
 
@@ -98,7 +97,7 @@ That's it. We have now read all relevant values from the thermostat.
 Of course you want to see what we just read. So you should use the `show` command.
 
 ```
-$ eco2 show '0;0:04:2F:06:24:D1;eTRV'
+$ eco2 show 0:04:2F:06:24:D1
 Name: Alrum opgang
 
 Set-point/room temperature: 19°C / 23.5°C
