@@ -44,12 +44,21 @@ official apps. I think it's OK if you need to use the app to enable or disable
 adaptive learning, to switch between horizontal and vertical installation, and
 other things that you will probably only do once when setting up the thermostat.
 
-## Usage
-You can run all commands through `cargo run`, or you can do `cargo build` once,
-put the resulting `target/debug/eco2` command on your path, and just run `eco2`.
-Below, we assume the latter.
+## Building
+You gotta [install Rust](https://www.rust-lang.org/tools/install) first. Then
+you can build the tool in release mode with `cargo build --release`, put
+`target/release/eco2` on your path, and then just call e.g. `eco2 scan`.
 
-For now, only the `scan`, `read`, and `show` commands are implemented.
+If you are lazy, you can also just build in debug mode and run in one fell
+swoop by running e.g. `cargo run scan`.
+
+Run the unit tests with `cargo test -- --test-threads=1`. The `-- --test-threads=1`
+is necessary because a couple of the tests write to and read from a file on
+disk, so they are flaky when run in parallel. (If you know how to set this up
+in `Cargo.toml`, please send me a PR...)
+
+## Usage
+For now, only the `eco2 scan`, `eco2 read`, and `eco2 show` commands are implemented.
 
 ### Scanning for nearby thermostats
 Run `eco2 scan`, wait 2 minutes, and see which thermostats your computer could
