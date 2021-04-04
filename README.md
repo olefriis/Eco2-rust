@@ -50,7 +50,7 @@ you can build the tool in release mode with `cargo build --release`, put
 `target/release/eco2` on your path, and then just call e.g. `eco2 scan`.
 
 If you are lazy, you can also just build in debug mode and run in one fell
-swoop by running e.g. `cargo run scan`.
+swoop by running e.g. `cargo run scan` on your command-line.
 
 Run the unit tests with `cargo test -- --test-threads=1`. The `-- --test-threads=1`
 is necessary because a couple of the tests write to and read from a file on
