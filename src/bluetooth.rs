@@ -204,7 +204,8 @@ pub fn scan(duration: Duration) -> Vec<ScannedBluetoothPeripheral> {
     result
 }
 
-pub fn connect(name: &String, ensure_timer_button_pressed: bool) -> Result<ConnectedBluetoothPeripheral> {
+pub fn connect<F>(matches_name: F, ensure_timer_button_pressed: bool) -> Result<ConnectedBluetoothPeripheral>
+    where F: Fn(&String) -> bool {
     let manager = Manager::new().unwrap();
     let central = get_central(&manager);
 
@@ -219,8 +220,8 @@ pub fn connect(name: &String, ensure_timer_button_pressed: bool) -> Result<Conne
         for peripheral in central.peripherals().into_iter() {
             match peripheral.properties().local_name {
                 Some(peripheral_name) => {
-                    if &peripheral_name == name {
-                        eprintln!("Got our peripheral: {}", name);
+                    if matches_name(&peripheral_name) {
+                        eprintln!("Found thermostat");
                         if ensure_timer_button_pressed {
                             eprintln!("This is the first time you connect to this thermostat, so we need to fetch the secret key.");
                             eprintln!("Please click the timer button on the thermostat, then press enter on your keyboard to continue connecting.");

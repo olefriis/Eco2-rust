@@ -439,7 +439,7 @@ mod tests {
 
     fn create_parsed_thermostat() -> ParsedThermostat {
         let thermostat = Thermostat {
-            serial: "2;0:04:2F:06:24:D1;eTRV".to_string(),
+            serial: "0:04:2F:06:24:D1".to_string(),
             secret: vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65],
             name: vec![177u8, 174, 159, 196, 58, 140, 76, 22, 18, 192, 117, 144, 240, 100, 45, 250],
             temperature: vec![7u8, 148, 108, 151, 150, 177, 75, 43],
@@ -454,7 +454,7 @@ mod tests {
 
     fn create_parsed_thermostat_with_schedule() -> ParsedThermostat {
         let thermostat = Thermostat {
-            serial: "2;0:04:2F:06:24:D1;eTRV".to_string(),
+            serial: "0:04:2F:06:24:D1".to_string(),
             secret: vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65],
             name: vec![177u8, 174, 159, 196, 58, 140, 76, 22, 18, 192, 117, 144, 240, 100, 45, 250],
             temperature: vec![206u8, 158, 231, 129, 243, 102, 119, 22],
@@ -469,7 +469,7 @@ mod tests {
 
     fn create_parsed_thermostat_with_vacation_schedule() -> ParsedThermostat {
         let thermostat = Thermostat {
-            serial: "2;0:04:2F:06:24:D1;eTRV".to_string(),
+            serial: "0:04:2F:06:24:D1".to_string(),
             secret: vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65],
             name: vec![177u8, 174, 159, 196, 58, 140, 76, 22, 18, 192, 117, 144, 240, 100, 45, 250],
             temperature: vec![87u8, 121, 70, 227, 189, 210, 0, 110],
@@ -485,7 +485,7 @@ mod tests {
 
     fn create_parsed_thermostat_with_planned_vacation() -> ParsedThermostat {
         let thermostat = Thermostat {
-            serial: "2;0:04:2F:06:24:D1;eTRV".to_string(),
+            serial: "0:04:2F:06:24:D1".to_string(),
             secret: vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65],
             name: vec![177u8, 174, 159, 196, 58, 140, 76, 22, 18, 192, 117, 144, 240, 100, 45, 250],
             temperature: vec![206u8, 158, 231, 129, 243, 102, 119, 22],

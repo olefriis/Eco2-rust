@@ -4,6 +4,7 @@ use std::collections::HashSet;
 mod bluetooth;
 
 use crate::models::thermostats::{Thermostats, Thermostat};
+use crate::models::thermostat_names::*;
 
 pub fn execute(arguments: Vec<String>) {
     if arguments.len() != 1 {
@@ -24,7 +25,7 @@ pub fn execute(arguments: Vec<String>) {
     } else {
         eprintln!("Reading from {}...", serial);
     }
-    let connected_peripheral = bluetooth::connect(serial, first_connection).unwrap();
+    let connected_peripheral = bluetooth::connect(|name| { is_thermostat_name(name) && &stripped_name(name) == serial }, first_connection).unwrap();
 
     let mut characteristics_to_read = HashSet::new();
     if first_connection {
