@@ -4,7 +4,7 @@ extern crate log;
 
 mod commands;
 mod models;
-use commands::{read, scan, show};
+use commands::{read, scan, set, show};
 
 fn main() {
     env_logger::init();
@@ -23,7 +23,7 @@ fn main() {
         "forget" => commands::forget(command_arguments),
         "list" => commands::list(command_arguments),
         "show" => show::execute(command_arguments),
-        "set" => commands::set(command_arguments),
+        "set" => set::execute(command_arguments),
         "help" => quit_with_usage(program.as_str(), 0),
         _ => {
             println!("Unknown command {}", command);

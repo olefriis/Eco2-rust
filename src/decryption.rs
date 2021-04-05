@@ -112,7 +112,7 @@ fn encrypt_(v: &mut Vec<u32>, key: &Vec<u32>) -> Vec<u32> {
       e = sum >> 2 & 3;
       for p in 0..n {
           y = v[(p as usize) +1];
-          v[p as usize] = v[p as usize].wrapping_add(mx(sum, y, z, (p as u32), e, &key));
+          v[p as usize] = v[p as usize].wrapping_add(mx(sum, y, z, p as u32, e, &key));
           z = v[p as usize];
       }
       y = v[0];
