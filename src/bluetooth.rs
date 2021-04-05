@@ -51,6 +51,7 @@ pub struct ScannedBluetoothPeripheral {
 }
 
 trait PeripheralWrapper: Send + Sync + std::fmt::Debug {
+    fn disconnect(&self) -> Result<()>;
     fn discover_characteristics(&self) -> Result<Vec<Characteristic>>;
     fn command(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()>;
     fn read(&self, characteristic: &Characteristic) -> Result<Vec<u8>>;
@@ -80,6 +81,10 @@ impl<P> PeripheralWrapper for BtleplugPeripheralWrapper<P>
 where
     P: Peripheral,
 {
+    fn disconnect(&self) -> Result<()> {
+        self.p.disconnect()
+    }
+
     fn command(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()> {
         self.p.command(characteristic, data)
     }
@@ -109,6 +114,10 @@ impl ConnectedBluetoothPeripheral {
     {
         let p = Box::new(BtleplugPeripheralWrapper::new(peripheral));
         Self { p }
+    }
+
+    pub fn disconnect(&self) {
+        self.p.disconnect().unwrap();
     }
 
     pub fn read_characteristics(&self, relevant_uuids: HashSet<String>) -> Result<HashMap<String, Vec<u8>>> {

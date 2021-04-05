@@ -1,17 +1,13 @@
 use std::collections::HashSet;
 
-#[path = "../bluetooth.rs"]
-mod bluetooth;
-
+use crate::bluetooth;
+use crate::bluetooth::ConnectedBluetoothPeripheral;
 use crate::models::thermostats::{Thermostats, Thermostat};
 use crate::models::thermostat_names::*;
 
 pub fn execute(arguments: Vec<String>) {
     if arguments.len() != 1 {
-        panic!(
-            "Expected just one parameter to read. Got {}.",
-            arguments.len()
-        );
+        panic!("Expected just one parameter to read. Got {}.", arguments.len());
     }
     let serial = &arguments[0];
 
@@ -24,14 +20,25 @@ pub fn execute(arguments: Vec<String>) {
 }
 
 fn read_from_thermostat(serial: &String, secret: Option<&Vec<u8>>) -> Thermostat {
-    let mut characteristics_to_read = HashSet::new();
-
     let first_connection = secret.is_none();
     if first_connection {
         eprintln!("Reading from {} for the first time...", serial);
-        characteristics_to_read.insert(bluetooth::SECRET_KEY.to_string());
     } else {
         eprintln!("Reading from {}...", serial);
+    }
+
+    let connected_peripheral = bluetooth::connect(|name| { is_thermostat_name(name) && &stripped_name(name) == serial }, first_connection).unwrap();
+
+    let result = read_from_connected_peripheral(&connected_peripheral, serial, secret);
+    connected_peripheral.disconnect();
+    result
+}
+
+pub fn read_from_connected_peripheral(peripheral: &ConnectedBluetoothPeripheral, serial: &String, secret: Option<&Vec<u8>>) -> Thermostat {
+    let mut characteristics_to_read = HashSet::new();
+
+    if secret.is_none() {
+        characteristics_to_read.insert(bluetooth::SECRET_KEY.to_string());
     }
 
     characteristics_to_read.insert(bluetooth::DEVICE_NAME.to_string());
@@ -44,8 +51,7 @@ fn read_from_thermostat(serial: &String, secret: Option<&Vec<u8>>) -> Thermostat
     characteristics_to_read.insert(bluetooth::SCHEDULE_2.to_string());
     characteristics_to_read.insert(bluetooth::SCHEDULE_3.to_string());
 
-    let connected_peripheral = bluetooth::connect(|name| { is_thermostat_name(name) && &stripped_name(name) == serial }, first_connection).unwrap();
-    let characteristic_values = connected_peripheral.read_characteristics(characteristics_to_read).unwrap();
+    let characteristic_values = peripheral.read_characteristics(characteristics_to_read).unwrap();
 
     let secret = match secret {
         Some(s) => s.clone(),

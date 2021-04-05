@@ -6,10 +6,7 @@ use crate::models::parsed_thermostat::ParsedThermostat;
 
 pub fn execute(arguments: Vec<String>) {
     if arguments.len() != 1 {
-        panic!(
-            "Expected just one parameter to read. Got {}.",
-            arguments.len()
-        );
+        panic!("Expected just one parameter to show. Got {}.", arguments.len());
     }
     let name = &arguments[0];
 
