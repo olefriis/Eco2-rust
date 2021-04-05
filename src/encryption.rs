@@ -10,6 +10,14 @@ pub fn decrypt(secret: &Vec<u8>, value: &Vec<u8>) -> Vec<u8> {
   switch_endianness(&to_u8_vec(&decrypted_value_as_u32s))
 }
 
+pub fn encrypt(secret: &Vec<u8>, value: &Vec<u8>) -> Vec<u8> {
+  let key_as_u32s = to_u32_vec(secret);
+  let mut value_as_u32s: Vec<u32> = to_u32_vec(&switch_endianness(&value));
+
+  let encrypted_value_as_u32s = encrypt_(&mut value_as_u32s, &key_as_u32s);
+  switch_endianness(&to_u8_vec(&encrypted_value_as_u32s))
+}
+
 fn switch_endianness(bytes: &Vec<u8>) -> Vec<u8> {
     let mut output = Vec::new();
 
@@ -87,6 +95,34 @@ fn decrypt_(value: &mut Vec<u32>, key: &Vec<u32>) -> Vec<u32> {
     v
 }
 
+fn encrypt_(v: &mut Vec<u32>, key: &Vec<u32>) -> Vec<u32> {
+  if key.len() != 4 {
+    panic!("XXTEA encryption key should be 8 32-bit numbers, was {}", key.len());
+  }
+
+  let length: u32 = v.len() as u32;
+  let n: u32 = length - 1;
+  let mut e: u32;
+  let mut y: u32;
+  let mut z = v[n as usize];
+  let mut sum: u32 = 0;
+  let mut q: u32 = 6 + 52 / length;
+  while q > 0 {
+      sum = sum.wrapping_add(DELTA);
+      e = sum >> 2 & 3;
+      for p in 0..n {
+          y = v[(p as usize) +1];
+          v[p as usize] = v[p as usize].wrapping_add(mx(sum, y, z, p as u32, e, &key));
+          z = v[p as usize];
+      }
+      y = v[0];
+      v[n as usize] = v[n as usize].wrapping_add(mx(sum, y, z, n, e, &key));
+      z = v[n as usize];
+      q = q - 1;
+  }
+  return v.clone();
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -98,5 +134,15 @@ mod tests {
 
       let decrypted_name = decrypt(&secret, &encrypted_name);
       assert_eq!(decrypted_name, vec![65, 108, 114, 117, 109, 32, 111, 112, 103, 97, 110, 103, 0, 0, 0, 0])
+    }
+
+
+    #[test]
+    fn it_can_encrypt_a_name() {
+      let decrypted_name = vec![65, 108, 114, 117, 109, 32, 111, 112, 103, 97, 110, 103, 0, 0, 0, 0];
+      let secret: Vec<u8> = vec![215, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65];
+
+      let encrypted_name = encrypt(&secret, &decrypted_name);
+      assert_eq!(encrypted_name, vec![177, 174, 159, 196, 58, 140, 76, 22, 18, 192, 117, 144, 240, 100, 45, 250])
     }
 }

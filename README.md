@@ -58,7 +58,6 @@ disk, so they are flaky when run in parallel. (If you know how to set this up
 in `Cargo.toml`, please send me a PR...)
 
 ## Usage
-For now, only the `eco2 scan`, `eco2 read`, and `eco2 show` commands are implemented.
 
 ### Scanning for nearby thermostats
 Run `eco2 scan`, wait 2 minutes, and see which thermostats your computer could
@@ -123,6 +122,45 @@ Friday: Away until 24:00
 Saturday: Home until 24:00
 Sunday: Home until 03:30 - Away until 20:30 - Home until 24:00
 ```
+
+### Updating properties
+For now, you can only update the set-point temperature. You do that by using
+two different commands: `eco2 set` and `eco2 sync`.
+
+First, set the temperature you want. It's in degrees Celcius.
+
+```
+$ eco2 set 0:04:2F:06:24:D1 set-point-temperature 21.5
+```
+
+This run really fast, because it only updates the temperature in the tool's
+database, which means it will _not_ write to the Eco2 thermostat.
+
+You can try to run `eco2 show` for your thermostat. It will show the same
+values as before, but at the bottom of the output you will now also see:
+
+```
+Properties to be written back to thermostat:
+Set-point temperature: 21.5
+```
+
+In order to write this set-point temperature back to the thermostat, you will
+need to run the `eco2 sync` command:
+
+```
+$ eco2 sync 0:04:2F:06:24:D1
+..Found thermostat
+Connected to peripheral
+Wrote pin code
+```
+
+This looks very much like the output from the `eco2 read` command you previously
+ran. In fact, `eco2 sync` will also read all the values from the thermostat, so
+if you haven't set any updated properties on the thermostat, `eco2 read` and
+`eco2 sync` will do the same thing. (The initial read from the thermostat will
+require an `eco2 read`, though, since this command can take care of reading the
+secret from the thermostat, whereas `eco2 sync` will fail if the tool does not
+know that secret.)
 
 ### Details
 All the values read from thermostats are stored in the `.thermostats.json` file

@@ -4,7 +4,9 @@ extern crate log;
 
 mod commands;
 mod models;
-use commands::{read, scan, show};
+mod bluetooth;
+mod encryption;
+use commands::{read, scan, set, show, sync};
 
 fn main() {
     env_logger::init();
@@ -19,11 +21,11 @@ fn main() {
     match command.as_str() {
         "scan" => scan::execute(command_arguments),
         "read" => read::execute(command_arguments),
-        "write" => commands::write(command_arguments),
+        "sync" => sync::execute(command_arguments),
         "forget" => commands::forget(command_arguments),
         "list" => commands::list(command_arguments),
         "show" => show::execute(command_arguments),
-        "set" => commands::set(command_arguments),
+        "set" => set::execute(command_arguments),
         "help" => quit_with_usage(program.as_str(), 0),
         _ => {
             println!("Unknown command {}", command);
@@ -38,7 +40,7 @@ fn quit_with_usage(program: &str, exit_code: i32) {
     println!("Commands:");
     println!("scan - scan nearby devices for 120 seconds (Ctrl-C to stop)");
     println!("read name - connect to and read specific thermostat");
-    println!("write name - connect to specific thermostat and write all values");
+    println!("sync name - connect to specific thermostat, write all values not yet written, and read all values");
     println!("forget name - forget about a specific thermostat");
     println!("list - show all of the previously read thermostats");
     println!("show name - output all previously read values from a thermostat");

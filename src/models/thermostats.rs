@@ -28,6 +28,18 @@ impl Thermostats {
         }
     }
 
+    pub fn get(&self, serial: &String) -> Option<&Thermostat> {
+        self.thermostats.iter().find(|thermostat| &thermostat.serial == serial)
+    }
+
+    pub fn push(&mut self, thermostat: Thermostat) {
+        // Get rid of existing thermostats with the same serial
+        self.thermostats.retain(|t| t.serial != thermostat.serial);
+
+        // Then add the new thermostat
+        self.thermostats.push(thermostat);
+    }
+
     #[cfg(test)]
     fn file_path() -> Result<String, std::io::Error> {
         Ok("./.test-thermostats.json".to_string())
@@ -48,7 +60,7 @@ impl Thermostats {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Thermostat {
     pub serial: String,
     pub secret: Vec<u8>,
@@ -59,6 +71,9 @@ pub struct Thermostat {
     pub schedule_1: Vec<u8>,
     pub schedule_2: Vec<u8>,
     pub schedule_3: Vec<u8>,
+
+    // New values that haven't yet been saved to the thermostat
+    pub new_set_point_temperature: Option<f32>,
 }
 
 #[cfg(test)]
@@ -91,6 +106,61 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn it_can_give_existing_thermostat_with_serial() {
+        let thermostats = create_test_data();
+
+        let thermostat = thermostats.get(&"67890".to_string());
+        assert_eq!(true, thermostat.is_some());
+        assert_eq!(vec![5u8, 4, 253, 91], thermostat.unwrap().name);
+    }
+
+    #[test]
+    fn it_gives_none_if_getting_a_nonexistent_thermostat() {
+        let thermostats = create_test_data();
+
+        assert_eq!(true, thermostats.get(&"19293".to_string()).is_none());
+    }
+
+    #[test]
+    fn it_can_add_new_thermostat() {
+        let mut thermostats = create_test_data();
+        let new_thermostat = Thermostat {
+            serial: "98765".to_string(),
+            secret: vec![93u8, 1],
+            name: vec![5u8, 4],
+            temperature: vec![1u8, 2],
+            settings: vec![1u8, 2],
+            schedule_1: vec![1u8, 2],
+            schedule_2: vec![1u8, 2],
+            schedule_3: vec![1u8, 2],
+
+            ..Default::default()
+        };
+        thermostats.push(new_thermostat);
+
+        assert_eq!(3, thermostats.thermostats.len());
+        let serials: Vec<String> = thermostats.thermostats.iter().map(|thermostat| thermostat.serial.clone()).collect();
+        assert_eq!(true, serials.contains(&"12345".to_string()));
+        assert_eq!(true, serials.contains(&"67890".to_string()));
+        assert_eq!(true, serials.contains(&"98765".to_string()));
+    }
+
+    #[test]
+    fn it_can_update_existing_thermostat() {
+        let mut thermostats = create_test_data();
+
+        let mut thermostat = thermostats.get(&"67890".to_string()).unwrap().clone();
+        thermostat.secret = vec![7u8, 8, 9];
+        thermostats.push(thermostat);
+
+        assert_eq!(2, thermostats.thermostats.len());
+        let serials: Vec<String> = thermostats.thermostats.iter().map(|thermostat| thermostat.serial.clone()).collect();
+        assert_eq!(true, serials.contains(&"12345".to_string()));
+        assert_eq!(true, serials.contains(&"67890".to_string()));
+        assert_eq!(vec![7u8, 8, 9], thermostats.get(&"67890".to_string()).unwrap().secret);
+    }
+
     fn create_test_data() -> Thermostats {
         let thermostat1 = Thermostat {
             serial: "12345".to_string(),
@@ -101,6 +171,8 @@ mod tests {
             schedule_1: vec![1u8, 2, 3, 4],
             schedule_2: vec![1u8, 2, 3, 4],
             schedule_3: vec![1u8, 2, 3, 4],
+
+            ..Default::default()
         };
         let thermostat2 = Thermostat {
             serial: "67890".to_string(),
@@ -111,6 +183,8 @@ mod tests {
             schedule_1: vec![1u8, 2, 3, 4],
             schedule_2: vec![1u8, 2, 3, 4],
             schedule_3: vec![1u8, 2, 3, 4],
+
+            ..Default::default()
         };
         Thermostats {
             thermostats: vec![thermostat1, thermostat2],

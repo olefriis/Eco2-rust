@@ -6,10 +6,7 @@ use crate::models::parsed_thermostat::ParsedThermostat;
 
 pub fn execute(arguments: Vec<String>) {
     if arguments.len() != 1 {
-        panic!(
-            "Expected just one parameter to read. Got {}.",
-            arguments.len()
-        );
+        panic!("Expected just one parameter to show. Got {}.", arguments.len());
     }
     let name = &arguments[0];
 
@@ -39,4 +36,10 @@ pub fn execute(arguments: Vec<String>) {
     println!("Friday: {}", parsed_thermostat.schedule_friday);
     println!("Saturday: {}", parsed_thermostat.schedule_saturday);
     println!("Sunday: {}", parsed_thermostat.schedule_sunday);
+
+    if let Some(new_set_point_temperature) = thermostat.new_set_point_temperature {
+        println!("");
+        println!("Properties to be written back to thermostat:");
+        println!("Set-point temperature: {}", new_set_point_temperature);
+    }
 }
