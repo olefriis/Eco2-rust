@@ -69,5 +69,7 @@ fn read_from_thermostat(serial: &String, secret: Option<&Vec<u8>>) -> Thermostat
         schedule_1,
         schedule_2,
         schedule_3,
+
+        ..Default::default()
     }
 }

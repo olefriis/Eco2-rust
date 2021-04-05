@@ -20,8 +20,9 @@ pub fn execute(arguments: Vec<String>) {
     };
 
     let property = &arguments[1][..];
+    let remaining_arguments = &arguments[2..];
     match property {
-        SET_POINT_TEMPERATURE => set_set_point_temperature(&mut thermostat, &arguments[2]),
+        SET_POINT_TEMPERATURE => set_set_point_temperature(&mut thermostat, remaining_arguments),
         _ => panic!("Unknown property: {}. Only set-point-temperature supported supported for now.", property),
     }
 
@@ -29,6 +30,11 @@ pub fn execute(arguments: Vec<String>) {
     thermostats.save().unwrap();
 }
 
-fn set_set_point_temperature(thermostat: &mut Thermostat, string_value: &String) {
-    eprintln!("Setting set-point-temperature for {} to {}", thermostat.serial, string_value);
+fn set_set_point_temperature(thermostat: &mut Thermostat, arguments: &[String]) {
+    if arguments.len() != 1 {
+        panic!("Expected just one argument as set-point temperature, got {}", arguments.len());
+    }
+    let new_set_point_temperature = arguments[0].parse::<f32>().expect("Cannot parse supplied set-point temperature");
+
+    thermostat.new_set_point_temperature = Some(new_set_point_temperature);
 }

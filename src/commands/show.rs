@@ -39,4 +39,10 @@ pub fn execute(arguments: Vec<String>) {
     println!("Friday: {}", parsed_thermostat.schedule_friday);
     println!("Saturday: {}", parsed_thermostat.schedule_saturday);
     println!("Sunday: {}", parsed_thermostat.schedule_sunday);
+
+    if let Some(new_set_point_temperature) = thermostat.new_set_point_temperature {
+        println!("");
+        println!("Properties to be written back to thermostat:");
+        println!("Set-point temperature: {}", new_set_point_temperature);
+    }
 }

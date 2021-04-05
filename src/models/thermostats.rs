@@ -60,7 +60,7 @@ impl Thermostats {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Thermostat {
     pub serial: String,
     pub secret: Vec<u8>,
@@ -71,6 +71,9 @@ pub struct Thermostat {
     pub schedule_1: Vec<u8>,
     pub schedule_2: Vec<u8>,
     pub schedule_3: Vec<u8>,
+
+    // New values that haven't yet been saved to the thermostat
+    pub new_set_point_temperature: Option<f32>,
 }
 
 #[cfg(test)]
@@ -131,6 +134,8 @@ mod tests {
             schedule_1: vec![1u8, 2],
             schedule_2: vec![1u8, 2],
             schedule_3: vec![1u8, 2],
+
+            ..Default::default()
         };
         thermostats.push(new_thermostat);
 
@@ -166,6 +171,8 @@ mod tests {
             schedule_1: vec![1u8, 2, 3, 4],
             schedule_2: vec![1u8, 2, 3, 4],
             schedule_3: vec![1u8, 2, 3, 4],
+
+            ..Default::default()
         };
         let thermostat2 = Thermostat {
             serial: "67890".to_string(),
@@ -176,6 +183,8 @@ mod tests {
             schedule_1: vec![1u8, 2, 3, 4],
             schedule_2: vec![1u8, 2, 3, 4],
             schedule_3: vec![1u8, 2, 3, 4],
+
+            ..Default::default()
         };
         Thermostats {
             thermostats: vec![thermostat1, thermostat2],

@@ -447,6 +447,8 @@ mod tests {
             schedule_1: vec![10u8, 152, 79, 196, 233, 136, 156, 34, 203, 230, 55, 201, 151, 192, 235, 253, 190, 155, 204, 38],
             schedule_2: vec![197u8, 163, 198, 34, 14, 212, 18, 186, 82, 212, 133, 156],
             schedule_3: vec![197u8, 163, 198, 34, 14, 212, 18, 186, 82, 212, 133, 156],
+
+            ..Default::default()
         };
 
         ParsedThermostat::from_thermostat(&thermostat)
@@ -462,6 +464,8 @@ mod tests {
             schedule_1: vec![177u8, 191, 223, 32, 127, 196, 137, 136, 213, 11, 205, 247, 71, 30, 49, 92, 247, 241, 236, 206],
             schedule_2: vec![220u8, 194, 171, 34, 228, 17, 4, 228, 108, 49, 152, 155],
             schedule_3: vec![98u8, 242, 118, 159, 179, 69, 44, 123, 193, 42, 33, 37],
+
+            ..Default::default()
         };
 
         ParsedThermostat::from_thermostat(&thermostat)
@@ -477,6 +481,8 @@ mod tests {
             schedule_1: vec![177u8, 191, 223, 32, 127, 196, 137, 136, 213, 11, 205, 247, 71, 30, 49, 92, 247, 241, 236, 206],
             schedule_2: vec![220u8, 194, 171, 34, 228, 17, 4, 228, 108, 49, 152, 155],
             schedule_3: vec![98u8, 242, 118, 159, 179, 69, 44, 123, 193, 42, 33, 37],
+
+            ..Default::default()
         };
 
         ParsedThermostat::from_thermostat(&thermostat)
@@ -493,6 +499,8 @@ mod tests {
             schedule_1: vec![177u8, 191, 223, 32, 127, 196, 137, 136, 213, 11, 205, 247, 71, 30, 49, 92, 247, 241, 236, 206],
             schedule_2: vec![220u8, 194, 171, 34, 228, 17, 4, 228, 108, 49, 152, 155],
             schedule_3: vec![98u8, 242, 118, 159, 179, 69, 44, 123, 193, 42, 33, 37],
+
+            ..Default::default()
         };
 
         ParsedThermostat::from_thermostat(&thermostat)
