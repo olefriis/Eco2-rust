@@ -5,6 +5,7 @@ extern crate log;
 mod commands;
 mod models;
 mod bluetooth;
+mod encryption;
 use commands::{read, scan, set, show, sync};
 
 fn main() {

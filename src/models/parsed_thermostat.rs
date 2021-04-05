@@ -1,14 +1,12 @@
+use std::fmt;
+
 extern crate chrono;
 use chrono::DateTime;
 use chrono::offset::Utc;
 use chrono::TimeZone;
 
 use crate::models::thermostats::Thermostat;
-use std::fmt;
-
-#[path = "../decryption.rs"]
-mod decryption;
-use decryption::{decrypt, encrypt};
+use crate::encryption::{decrypt, encrypt};
 
 pub fn update_set_point_temperature(encrypted_temperature: &Vec<u8>, secret: &Vec<u8>, set_point_temperature: f32) -> Vec<u8> {
     let temperature = Temperature::from_degrees_celcius(set_point_temperature);
