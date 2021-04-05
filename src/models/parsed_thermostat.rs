@@ -8,7 +8,16 @@ use std::fmt;
 
 #[path = "../decryption.rs"]
 mod decryption;
-use decryption::decrypt;
+use decryption::{decrypt, encrypt};
+
+pub fn update_set_point_temperature(encrypted_temperature: &Vec<u8>, secret: &Vec<u8>, set_point_temperature: f32) -> Vec<u8> {
+    let temperature = Temperature::from_degrees_celcius(set_point_temperature);
+
+    let mut decrypted_temperature = decrypt(secret, encrypted_temperature);
+    decrypted_temperature[0] = temperature.value;
+
+    encrypt(secret, &decrypted_temperature)
+}
 
 pub struct ParsedThermostat {
     pub name: String,
@@ -223,6 +232,20 @@ pub enum TimeSetting {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn it_can_update_set_point_temperature() {
+        let secret = vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65];
+        let encrypted_temperature = vec![87u8, 121, 70, 227, 189, 210, 0, 110];
+        let old_decrypted_temperature = decrypt(&secret, &encrypted_temperature);
+
+        let updated_encrypted_temperature = update_set_point_temperature(&encrypted_temperature, &secret, 18.5);
+        let decrypted_temperature = decrypt(&secret, &updated_encrypted_temperature);
+
+        // The written value should be 18.5 * 2
+        assert_eq!(37u8, decrypted_temperature[0]);
+        assert_eq!(old_decrypted_temperature[1..], decrypted_temperature[1..]);
+    }
 
     #[test]
     fn it_can_decrypt_and_decode_name() {
