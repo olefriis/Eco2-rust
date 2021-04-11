@@ -40,6 +40,10 @@ impl Thermostats {
         self.thermostats.push(thermostat);
     }
 
+    pub fn delete(&mut self, serial: &String) {
+        self.thermostats.retain(|t| &t.serial != serial);
+    }
+
     #[cfg(test)]
     fn file_path() -> Result<String, std::io::Error> {
         Ok("./.test-thermostats.json".to_string())
@@ -159,6 +163,17 @@ mod tests {
         assert_eq!(true, serials.contains(&"12345".to_string()));
         assert_eq!(true, serials.contains(&"67890".to_string()));
         assert_eq!(vec![7u8, 8, 9], thermostats.get(&"67890".to_string()).unwrap().secret);
+    }
+
+    #[test]
+    fn it_can_delete_existing_thermostat() {
+        let mut thermostats = create_test_data();
+
+        thermostats.delete(&"12345".to_string());
+
+        assert_eq!(1, thermostats.thermostats.len());
+        assert_eq!(false, thermostats.get(&"12345".to_string()).is_some());
+        assert_eq!(true, thermostats.get(&"67890".to_string()).is_some());
     }
 
     fn create_test_data() -> Thermostats {
