@@ -6,7 +6,7 @@ mod commands;
 mod models;
 mod bluetooth;
 mod encryption;
-use commands::{read, scan, set, show, sync};
+use commands::{list, read, scan, set, show, sync};
 
 fn main() {
     env_logger::init();
@@ -23,7 +23,7 @@ fn main() {
         "read" => read::execute(command_arguments),
         "sync" => sync::execute(command_arguments),
         "forget" => commands::forget(command_arguments),
-        "list" => commands::list(command_arguments),
+        "list" => list::execute(command_arguments),
         "show" => show::execute(command_arguments),
         "set" => set::execute(command_arguments),
         "help" => quit_with_usage(program.as_str(), 0),
