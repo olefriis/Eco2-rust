@@ -166,6 +166,10 @@ know that secret.)
 It's sometimes nice to get an overview of which thermostats you have in your
 system. Just call `eco2 list`.
 
+### Deleting/forgetting thermostats
+Sometimes you move around thermostats, get rid of some, reset some, etc. To get
+rid of a thermostat in the tool, just call e.g. `eco2 forget 0:04:2F:06:24:D1`.
+
 ### Details
 All the values read from thermostats are stored in the `.thermostats.json` file
 in your home directory. If you somehow end up in a weird state, just delete
