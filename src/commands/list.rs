@@ -12,6 +12,6 @@ pub fn execute(arguments: Vec<String>) {
 
     for thermostat in thermostats {
         let parsed_thermostat = ParsedThermostat::from_thermostat(&thermostat);
-        println!("{} {}", thermostat.serial, parsed_thermostat.name);
+        println!("{} {} {}%", thermostat.serial, parsed_thermostat.name, parsed_thermostat.battery_percentage);
     }
 }
