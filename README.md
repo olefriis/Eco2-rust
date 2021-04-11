@@ -107,6 +107,7 @@ Of course you want to see what we just read. So you should use the `show` comman
 ```
 $ eco2 show 0:04:2F:06:24:D1
 Name: Alrum opgang
+74% battery
 
 Set-point/room temperature: 19°C / 23.5°C
 Vacation/frost protection temperature: 17°C / 6°C
@@ -164,7 +165,12 @@ know that secret.)
 
 ### Listing thermostats
 It's sometimes nice to get an overview of which thermostats you have in your
-system. Just call `eco2 list`.
+system. Just call `eco2 list`. It will show the serial, the name, and the
+battery percentage for all the thermostats known by the tool.
+
+Please note: This information is based on what was retrieved last time you
+called either `eco2 read` or `eco2 sync` for the individual thermostats. The
+`eco2 list` command will not connect to any thermostats.
 
 ### Deleting/forgetting thermostats
 Sometimes you move around thermostats, get rid of some, reset some, etc. To get
