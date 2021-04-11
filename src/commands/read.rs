@@ -42,9 +42,7 @@ pub fn read_from_connected_peripheral(peripheral: &ConnectedBluetoothPeripheral,
     }
 
     characteristics_to_read.insert(bluetooth::DEVICE_NAME.to_string());
-    // Issues with battery level... getting this error from btleplug:
-    // thread '<unnamed>' panicked at 'called `Result::unwrap()` on an `Err` value: Error(Parser(InvalidLength { expected: Any([36, 32]), found: 4 }))', /Users/olefriis/.cargo/registry/src/github.com-1ecc6299db9ec823/btleplug-0.6.0/src/corebluetooth/central_delegate.rs:433:90
-    //characteristics_to_read.insert(bluetooth::BATTERY_LEVEL.to_string());
+    characteristics_to_read.insert(bluetooth::BATTERY_LEVEL.to_string());
     characteristics_to_read.insert(bluetooth::TEMPERATURE.to_string());
     characteristics_to_read.insert(bluetooth::SETTINGS.to_string());
     characteristics_to_read.insert(bluetooth::SCHEDULE_1.to_string());
@@ -58,7 +56,7 @@ pub fn read_from_connected_peripheral(peripheral: &ConnectedBluetoothPeripheral,
         None => characteristic_values.get(&bluetooth::SECRET_KEY.to_string()).unwrap().clone()
     };
     let name = characteristic_values.get(&bluetooth::DEVICE_NAME.to_string()).unwrap().clone();
-    //let battery_level = characteristic_values.get(&bluetooth::BATTERY_LEVEL.to_string()).unwrap().clone();
+    let battery_level = characteristic_values.get(&bluetooth::BATTERY_LEVEL.to_string()).unwrap().clone();
     let temperature = characteristic_values.get(&bluetooth::TEMPERATURE.to_string()).unwrap().clone();
     let settings = characteristic_values.get(&bluetooth::SETTINGS.to_string()).unwrap().clone();
     let schedule_1 = characteristic_values.get(&bluetooth::SCHEDULE_1.to_string()).unwrap().clone();
@@ -69,7 +67,7 @@ pub fn read_from_connected_peripheral(peripheral: &ConnectedBluetoothPeripheral,
         serial: serial.clone(),
         secret,
         name,
-        //battery_level,
+        battery_level,
         temperature,
         settings,
         schedule_1,

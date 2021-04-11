@@ -56,6 +56,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(non_snake_case)]
     fn it_knows_that_thermostat_names_should_end_with_eTRV() {
         assert_eq!(false, is_thermostat_name(&"0;0:04:2F:06:24:D1".to_string()));
         assert_eq!(false, is_thermostat_name(&"4;0:04:2F:C0:F2:58;eTRV3".to_string()));

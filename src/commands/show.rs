@@ -19,6 +19,7 @@ pub fn execute(arguments: Vec<String>) {
     let parsed_thermostat = ParsedThermostat::from_thermostat(&thermostat);
 
     println!("Name: {}", parsed_thermostat.name);
+    println!("{}% battery", parsed_thermostat.battery_percentage);
     println!("");
     println!("Set-point/room temperature: {} / {}", parsed_thermostat.set_point_temperature, parsed_thermostat.room_temperature);
     println!("Vacation/frost protection temperature: {} / {}", parsed_thermostat.vacation_temperature, parsed_thermostat.frost_protection_temperature);
