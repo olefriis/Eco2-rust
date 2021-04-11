@@ -3,7 +3,7 @@ use crate::models::parsed_thermostat::ParsedThermostat;
 
 pub fn execute(arguments: Vec<String>) {
     if arguments.len() != 0 {
-        panic!("Expected no  parameters to list. Got {}.", arguments.len());
+        panic!("Expected no parameters to list. Got {}.", arguments.len());
     }
 
     let thermostats = Thermostats::load().expect("Could not read thermostat data");

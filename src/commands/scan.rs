@@ -4,6 +4,10 @@ use crate::bluetooth::scan;
 use crate::models::thermostat_names::*;
 
 pub fn execute(arguments: Vec<String>) {
+    if arguments.len() != 0 {
+        panic!("Expected no parameters to scan. Got {}.", arguments.len());
+    }
+
     eprintln!("Scanning for 2 minutes. Please wait.");
     let peripherals = scan(Duration::from_secs(120));
 

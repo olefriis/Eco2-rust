@@ -1,6 +1,6 @@
 extern crate btleplug;
 
-use btleplug::api::{Central, Characteristic, Peripheral};
+use btleplug::api::{Central, Characteristic, Peripheral, WriteType};
 use std::thread;
 use std::time::{Duration, SystemTime};
 use std::collections::{HashMap, HashSet};
@@ -14,18 +14,18 @@ use btleplug::corebluetooth::{adapter::Adapter, manager::Manager};
 #[cfg(target_os = "windows")]
 use btleplug::winrtble::{adapter::Adapter, manager::Manager};
 
-const PIN_CODE_CHARACTERISTIC: &str = "10:02:00:01:27:49:00:01:00:00:00:80:5F:9B:04:2F";
-pub const BATTERY_LEVEL: &str = "00:00:2A:19:00:00:10:00:80:00:00:80:5F:9B:34:FB";
-pub const SECRET_KEY: &str = "10:02:00:0B:27:49:00:01:00:00:00:80:5F:9B:04:2F";
-pub const DEVICE_NAME: &str = "10:02:00:06:27:49:00:01:00:00:00:80:5F:9B:04:2F";
-pub const TEMPERATURE: &str = "10:02:00:05:27:49:00:01:00:00:00:80:5F:9B:04:2F";
-pub const SETTINGS: &str = "10:02:00:03:27:49:00:01:00:00:00:80:5F:9B:04:2F";
+const PIN_CODE_CHARACTERISTIC: &str = "10020001-2749-0001-0000-00805f9b042f";
+pub const BATTERY_LEVEL: &str = "00002a19-0000-1000-8000-00805f9b34fb";
+pub const SECRET_KEY: &str = "1002000b-2749-0001-0000-00805f9b042f";
+pub const DEVICE_NAME: &str = "10020006-2749-0001-0000-00805f9b042f";
+pub const TEMPERATURE: &str = "10020005-2749-0001-0000-00805f9b042f";
+pub const SETTINGS: &str = "10020003-2749-0001-0000-00805f9b042f";
 // Home temperature, Out temperature, Schedule Monday + Tuesday + Wednesday
-pub const SCHEDULE_1: &str = "10:02:00:0D:27:49:00:01:00:00:00:80:5F:9B:04:2F";
+pub const SCHEDULE_1: &str = "1002000d-2749-0001-0000-00805f9b042f";
 // Schedule Thursday + Friday
-pub const SCHEDULE_2: &str = "10:02:00:0E:27:49:00:01:00:00:00:80:5F:9B:04:2F";
+pub const SCHEDULE_2: &str = "1002000e-2749-0001-0000-00805f9b042f";
 // Schedule Saturday + Sunday
-pub const SCHEDULE_3: &str = "10:02:00:0F:27:49:00:01:00:00:00:80:5F:9B:04:2F";
+pub const SCHEDULE_3: &str = "1002000f-2749-0001-0000-00805f9b042f";
 
 //
 // btleplug's interface varies a bit between OSes. According to the crate docs,
@@ -53,9 +53,8 @@ pub struct ScannedBluetoothPeripheral {
 trait PeripheralWrapper: Send + Sync + std::fmt::Debug {
     fn disconnect(&self) -> Result<()>;
     fn discover_characteristics(&self) -> Result<Vec<Characteristic>>;
-    fn command(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()>;
     fn read(&self, characteristic: &Characteristic) -> Result<Vec<u8>>;
-    fn request(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()>;
+    fn write(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()>;
 }
 
 #[derive(Debug)]
@@ -85,10 +84,6 @@ where
         self.p.disconnect()
     }
 
-    fn command(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()> {
-        self.p.command(characteristic, data)
-    }
-
     fn discover_characteristics(&self) -> Result<Vec<Characteristic>> {
         self.p.discover_characteristics()
     }
@@ -97,8 +92,8 @@ where
         self.p.read(characteristic)
     }
 
-    fn request(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()> {
-        self.p.request(characteristic, data)
+    fn write(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()> {
+        self.p.write(characteristic, data, WriteType::WithoutResponse)
     }
 }
 
@@ -142,7 +137,7 @@ impl ConnectedBluetoothPeripheral {
     pub fn write_data(&self, characteristic: &str, data: &Vec<u8>) -> Result<()> {
         let characteristics = self.p.discover_characteristics()?;
         let bluetooth_characteristic = self.characteristic_with_uuid(&characteristics, characteristic);
-        self.p.request(bluetooth_characteristic, data)?;
+        self.p.write(bluetooth_characteristic, data)?;
         Ok(())
     }
     
@@ -153,7 +148,6 @@ impl ConnectedBluetoothPeripheral {
     }
     
     fn characteristic_with_uuid<'a>(&self, characteristics: &'a Vec<Characteristic>, uuid: &str) -> &'a Characteristic {
-        let uuid_string = uuid.to_string();
         characteristics
             .iter()
             .find(|&characteristic| characteristic.uuid.to_string() == uuid.to_string())
