@@ -1,6 +1,6 @@
 extern crate btleplug;
 
-use btleplug::api::{Central, Characteristic, Peripheral};
+use btleplug::api::{Central, Characteristic, Peripheral, WriteType};
 use std::thread;
 use std::time::{Duration, SystemTime};
 use std::collections::{HashMap, HashSet};
@@ -53,9 +53,8 @@ pub struct ScannedBluetoothPeripheral {
 trait PeripheralWrapper: Send + Sync + std::fmt::Debug {
     fn disconnect(&self) -> Result<()>;
     fn discover_characteristics(&self) -> Result<Vec<Characteristic>>;
-    fn command(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()>;
     fn read(&self, characteristic: &Characteristic) -> Result<Vec<u8>>;
-    fn request(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()>;
+    fn write(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()>;
 }
 
 #[derive(Debug)]
@@ -85,10 +84,6 @@ where
         self.p.disconnect()
     }
 
-    fn command(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()> {
-        self.p.command(characteristic, data)
-    }
-
     fn discover_characteristics(&self) -> Result<Vec<Characteristic>> {
         self.p.discover_characteristics()
     }
@@ -97,8 +92,8 @@ where
         self.p.read(characteristic)
     }
 
-    fn request(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()> {
-        self.p.request(characteristic, data)
+    fn write(&self, characteristic: &Characteristic, data: &[u8]) -> Result<()> {
+        self.p.write(characteristic, data, WriteType::WithoutResponse)
     }
 }
 
@@ -142,7 +137,7 @@ impl ConnectedBluetoothPeripheral {
     pub fn write_data(&self, characteristic: &str, data: &Vec<u8>) -> Result<()> {
         let characteristics = self.p.discover_characteristics()?;
         let bluetooth_characteristic = self.characteristic_with_uuid(&characteristics, characteristic);
-        self.p.request(bluetooth_characteristic, data)?;
+        self.p.write(bluetooth_characteristic, data)?;
         Ok(())
     }
     
