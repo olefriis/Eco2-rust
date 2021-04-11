@@ -162,6 +162,10 @@ require an `eco2 read`, though, since this command can take care of reading the
 secret from the thermostat, whereas `eco2 sync` will fail if the tool does not
 know that secret.)
 
+### Listing thermostats
+It's sometimes nice to just get an overview of which thermostats you have in
+your system. Just call `eco2 list`.
+
 ### Details
 All the values read from thermostats are stored in the `.thermostats.json` file
 in your home directory. If you somehow end up in a weird state, just delete
