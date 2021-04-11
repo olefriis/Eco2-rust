@@ -19,6 +19,7 @@ pub fn update_set_point_temperature(encrypted_temperature: &Vec<u8>, secret: &Ve
 
 pub struct ParsedThermostat {
     pub name: String,
+    pub battery_percentage: u8,
     pub set_point_temperature: Temperature,
     pub room_temperature: Temperature,
     pub vacation_temperature: Temperature,
@@ -43,6 +44,8 @@ impl ParsedThermostat {
         let decrypted_schedule_2 = decrypt(&thermostat.secret, &thermostat.schedule_2);
         let decrypted_schedule_3 = decrypt(&thermostat.secret, &thermostat.schedule_3);
     
+        let battery_percentage = thermostat.battery_level[0];
+
         let set_point_temperature = Temperature::from_byte(decrypted_temperature[0]);
         let room_temperature = Temperature::from_byte(decrypted_temperature[1]);
         let vacation_temperature = Temperature::from_byte(decrypted_settings[5]);
@@ -72,6 +75,7 @@ impl ParsedThermostat {
 
         ParsedThermostat {
             name: ParsedThermostat::decode_name(&decrypted_name),
+            battery_percentage,
             set_point_temperature,
             room_temperature,
             vacation_temperature,
@@ -248,6 +252,11 @@ mod tests {
     #[test]
     fn it_can_decrypt_and_decode_name() {
         assert_eq!("Alrum opgang".to_string(), create_parsed_thermostat().name);
+    }
+
+    #[test]
+    fn it_can_decode_battery_percentage() {
+        assert_eq!(78, create_parsed_thermostat().battery_percentage);
     }
 
     #[test]
@@ -463,6 +472,7 @@ mod tests {
             serial: "0:04:2F:06:24:D1".to_string(),
             secret: vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65],
             name: vec![177u8, 174, 159, 196, 58, 140, 76, 22, 18, 192, 117, 144, 240, 100, 45, 250],
+            battery_level: vec![78u8],
             temperature: vec![7u8, 148, 108, 151, 150, 177, 75, 43],
             settings: vec![23u8, 243, 171, 192, 165, 81, 175, 118, 209, 79, 41, 151, 155, 212, 21, 255],
             schedule_1: vec![10u8, 152, 79, 196, 233, 136, 156, 34, 203, 230, 55, 201, 151, 192, 235, 253, 190, 155, 204, 38],
@@ -480,6 +490,7 @@ mod tests {
             serial: "0:04:2F:06:24:D1".to_string(),
             secret: vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65],
             name: vec![177u8, 174, 159, 196, 58, 140, 76, 22, 18, 192, 117, 144, 240, 100, 45, 250],
+            battery_level: vec![78u8],
             temperature: vec![206u8, 158, 231, 129, 243, 102, 119, 22],
             settings: vec![180u8, 249, 230, 196, 18, 146, 189, 34, 145, 102, 24, 26, 151, 111, 192, 189],
             schedule_1: vec![177u8, 191, 223, 32, 127, 196, 137, 136, 213, 11, 205, 247, 71, 30, 49, 92, 247, 241, 236, 206],
@@ -497,6 +508,7 @@ mod tests {
             serial: "0:04:2F:06:24:D1".to_string(),
             secret: vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65],
             name: vec![177u8, 174, 159, 196, 58, 140, 76, 22, 18, 192, 117, 144, 240, 100, 45, 250],
+            battery_level: vec![78u8],
             temperature: vec![87u8, 121, 70, 227, 189, 210, 0, 110],
             settings: vec![37u8, 26, 221, 64, 72, 6, 76, 45, 16, 198, 251, 77, 55, 244, 69, 9],
             schedule_1: vec![177u8, 191, 223, 32, 127, 196, 137, 136, 213, 11, 205, 247, 71, 30, 49, 92, 247, 241, 236, 206],
@@ -515,6 +527,7 @@ mod tests {
             serial: "0:04:2F:06:24:D1".to_string(),
             secret: vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65],
             name: vec![177u8, 174, 159, 196, 58, 140, 76, 22, 18, 192, 117, 144, 240, 100, 45, 250],
+            battery_level: vec![78u8],
             temperature: vec![206u8, 158, 231, 129, 243, 102, 119, 22],
             settings: vec![38u8, 253, 23, 96, 139, 92, 198, 149, 168, 5, 146, 197, 239, 37, 35, 118],
             schedule_1: vec![177u8, 191, 223, 32, 127, 196, 137, 136, 213, 11, 205, 247, 71, 30, 49, 92, 247, 241, 236, 206],
