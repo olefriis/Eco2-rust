@@ -1,5 +1,5 @@
 extern crate chrono;
-use chrono::offset::Local;
+use chrono::offset::{Local,Utc};
 
 use crate::models::thermostats::Thermostats;
 use crate::models::parsed_thermostat::ParsedThermostat;
@@ -26,7 +26,7 @@ pub fn execute(arguments: Vec<String>) {
     println!("");
     println!("Schedule mode: {}", parsed_thermostat.schedule_mode);
     if let Some((vacation_start, vacation_end)) = parsed_thermostat.vacation_period {
-        println!("Vacation: {} - {}", vacation_start.with_timezone(&Local), vacation_end.with_timezone(&Local));
+        println!("Vacation: {} - {}", formatted_date(vacation_start), formatted_date(vacation_end));
     }
     println!("");
     println!("Daily Schedules");
@@ -43,4 +43,8 @@ pub fn execute(arguments: Vec<String>) {
         println!("Properties to be written back to thermostat:");
         println!("Set-point temperature: {}", new_set_point_temperature);
     }
+}
+
+fn formatted_date(t: chrono::DateTime<Utc>) -> String {
+    t.with_timezone(&Local).format("%Y-%m-%d %H:%M").to_string()
 }
