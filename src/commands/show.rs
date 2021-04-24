@@ -45,9 +45,13 @@ pub fn execute(arguments: Vec<String>) {
             println!("Set-point temperature: {}", new_set_point_temperature);
         }
         if let Some((new_vacation_start, new_vacation_end)) = thermostat.new_vacation_period {
-            let new_vacation_start = formatted_date(Utc.timestamp(new_vacation_start, 0));
-            let new_vacation_end = formatted_date(Utc.timestamp(new_vacation_end, 0));
-            println!("Vacation: {} - {}", new_vacation_start, new_vacation_end);
+            if new_vacation_start == 0 {
+                println!("Reset vacation");
+            } else {
+                let new_vacation_start = formatted_date(Utc.timestamp(new_vacation_start, 0));
+                let new_vacation_end = formatted_date(Utc.timestamp(new_vacation_end, 0));
+                println!("Vacation: {} - {}", new_vacation_start, new_vacation_end);
+            }
         }
     }
 }
