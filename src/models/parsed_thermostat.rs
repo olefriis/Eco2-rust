@@ -13,6 +13,22 @@ pub fn update_set_point_temperature(encrypted_temperature: &Vec<u8>, secret: &Ve
     encrypt(secret, &decrypted_temperature)
 }
 
+pub fn update_vacation_period(encrypted_settings: &Vec<u8>, secret: &Vec<u8>, vacation_start: i64, vacation_end: i64) -> Vec<u8> {
+    let mut decrypted_settings = decrypt(secret, encrypted_settings);
+    replace_four_bytes(vacation_start, &mut decrypted_settings, 6);
+    replace_four_bytes(vacation_end, &mut decrypted_settings, 10);
+
+    encrypt(secret, &decrypted_settings)
+}
+
+fn replace_four_bytes(value: i64, existing_bytes: &mut Vec<u8>, start_index: usize) {
+    let mut counter = value;
+    for i in 0..4 {
+        existing_bytes[start_index + 3 - i] = (counter % 256) as u8;
+        counter /= 256;
+    }
+}
+
 pub struct ParsedThermostat {
     pub name: String,
     pub battery_percentage: u8,
@@ -243,6 +259,27 @@ mod tests {
         // The written value should be 18.5 * 2
         assert_eq!(37u8, decrypted_temperature[0]);
         assert_eq!(old_decrypted_temperature[1..], decrypted_temperature[1..]);
+    }
+
+    #[test]
+    fn it_can_update_vacation_period() {
+        let secret = vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65];
+        let encrypted_settings = vec![180u8, 249, 230, 196, 18, 146, 189, 34, 145, 102, 24, 26, 151, 111, 192, 189];
+        let old_decrypted_settings = decrypt(&secret, &encrypted_settings);
+
+        let vacation_start = Local.ymd(2021, 5, 24).and_hms(13, 0, 0).timestamp();
+        let vacation_end = Local.ymd(2021, 6, 30).and_hms(10, 0, 0).timestamp();
+
+        let updated_encrypted_settings = update_vacation_period(&encrypted_settings, &secret, vacation_start, vacation_end);
+        let decrypted_settings = decrypt(&secret, &updated_encrypted_settings);
+
+        let vacation_start_bytes = &decrypted_settings[6..10];
+        let vacation_end_bytes = &decrypted_settings[10..14];
+
+        assert_eq!(vacation_start, ParsedThermostat::decode_datetime(vacation_start_bytes).unwrap().timestamp());
+        assert_eq!(vacation_end, ParsedThermostat::decode_datetime(vacation_end_bytes).unwrap().timestamp());
+        assert_eq!(old_decrypted_settings[0..6], decrypted_settings[0..6]);
+        assert_eq!(old_decrypted_settings[14..], decrypted_settings[14..]);
     }
 
     #[test]
