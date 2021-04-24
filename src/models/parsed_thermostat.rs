@@ -1,9 +1,5 @@
 use std::fmt;
-
-extern crate chrono;
-use chrono::DateTime;
-use chrono::offset::Utc;
-use chrono::TimeZone;
+use chrono::prelude::*;
 
 use crate::models::thermostats::Thermostat;
 use crate::encryption::{decrypt, encrypt};

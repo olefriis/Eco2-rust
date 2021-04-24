@@ -78,6 +78,7 @@ pub struct Thermostat {
 
     // New values that haven't yet been saved to the thermostat
     pub new_set_point_temperature: Option<f32>,
+    pub new_vacation_period: Option<(i64, i64)>,
 }
 
 #[cfg(test)]

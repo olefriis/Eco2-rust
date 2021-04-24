@@ -1,5 +1,4 @@
-extern crate chrono;
-use chrono::offset::{Local,Utc};
+use chrono::prelude::*;
 
 use crate::models::thermostats::Thermostats;
 use crate::models::parsed_thermostat::ParsedThermostat;
@@ -38,10 +37,18 @@ pub fn execute(arguments: Vec<String>) {
     println!("Saturday: {}", parsed_thermostat.schedule_saturday);
     println!("Sunday: {}", parsed_thermostat.schedule_sunday);
 
-    if let Some(new_set_point_temperature) = thermostat.new_set_point_temperature {
+    if thermostat.new_set_point_temperature.is_some() || thermostat.new_vacation_period.is_some() {
         println!("");
         println!("Properties to be written back to thermostat:");
-        println!("Set-point temperature: {}", new_set_point_temperature);
+
+        if let Some(new_set_point_temperature) = thermostat.new_set_point_temperature {
+            println!("Set-point temperature: {}", new_set_point_temperature);
+        }
+        if let Some((new_vacation_start, new_vacation_end)) = thermostat.new_vacation_period {
+            let new_vacation_start = formatted_date(Utc.timestamp(new_vacation_start, 0));
+            let new_vacation_end = formatted_date(Utc.timestamp(new_vacation_end, 0));
+            println!("Vacation: {} - {}", new_vacation_start, new_vacation_end);
+        }
     }
 }
 
