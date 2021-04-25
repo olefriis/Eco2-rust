@@ -125,17 +125,34 @@ Sunday: Home until 03:30 - Away until 20:30 - Home until 24:00
 ```
 
 ### Updating properties
-For now, you can only update the set-point temperature. You do that by using
-two different commands: `eco2 set` and `eco2 sync`.
+You can update the set-point temperature and vacation period. You do that by
+using two different commands: `eco2 set` and `eco2 sync`.
 
-First, set the temperature you want. It's in degrees Celcius.
+To update the set-point temperature, run the `eco2 set` command with the serial,
+`set-point-temperature`, and the desired temperature in degrees Celcius.
 
 ```
 $ eco2 set 0:04:2F:06:24:D1 set-point-temperature 21.5
 ```
 
-This run really fast, because it only updates the temperature in the tool's
+This runs really fast, because it only updates the temperature in the tool's
 database, which means it will _not_ write to the Eco2 thermostat.
+
+To set the vacation period, use the `vacation-period` parameter instead and specify
+the start and end times:
+
+```
+$ eco2 set 0:04:2F:06:24:D1 vacation-period "2021-04-05 13:00" "2022-05-12 10:00"
+```
+
+Only `00` minutes are accepted. The start and end times are specified in your
+computer's time zone.
+
+To clear the vacation period, specify `clear` instead of the dates:
+
+```
+$ eco2 set 0:04:2F:06:24:D1 vacation-period clear
+```
 
 You can try to run `eco2 show` for your thermostat. It will show the same
 values as before, but at the bottom of the output you will now also see:
@@ -143,10 +160,11 @@ values as before, but at the bottom of the output you will now also see:
 ```
 Properties to be written back to thermostat:
 Set-point temperature: 21.5
+Vacation: 2021-04-05 13:00 - 2022-05-12 10:00
 ```
 
-In order to write this set-point temperature back to the thermostat, you will
-need to run the `eco2 sync` command:
+In order to write these values back to the thermostat, you will need to run the
+`eco2 sync` command:
 
 ```
 $ eco2 sync 0:04:2F:06:24:D1
