@@ -148,10 +148,10 @@ $ eco2 set 0:04:2F:06:24:D1 vacation-period "2021-04-05 13:00" "2022-05-12 10:00
 Only `00` minutes are accepted. The start and end times are specified in your
 computer's time zone.
 
-To reset the vacation period, specify `reset` instead of the dates:
+To clear the vacation period, specify `clear` instead of the dates:
 
 ```
-$ eco2 set 0:04:2F:06:24:D1 vacation-period reset
+$ eco2 set 0:04:2F:06:24:D1 vacation-period clear
 ```
 
 You can try to run `eco2 show` for your thermostat. It will show the same

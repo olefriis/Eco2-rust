@@ -43,10 +43,10 @@ fn set_set_point_temperature(thermostat: &mut Thermostat, arguments: &[String]) 
 }
 
 fn set_vacation_period(thermostat: &mut Thermostat, arguments: &[String]) {
-    // Assume that we want to reset the vacation period if we only have one argument.
+    // Assume that we want to clear the vacation period if we only have one argument.
     // Is this a bit too hacky?
     if arguments.len() == 1 {
-        reset_vacation_period(thermostat, arguments);
+        clear_vacation_period(thermostat, arguments);
         return;
     }
 
@@ -59,9 +59,9 @@ fn set_vacation_period(thermostat: &mut Thermostat, arguments: &[String]) {
     thermostat.new_vacation_period = Some((new_vacation_period_start, new_vacation_period_end));
 }
 
-fn reset_vacation_period(thermostat: &mut Thermostat, arguments: &[String]) {
-    if arguments[0] != "reset" {
-        panic!("Expected either a start and end date, or just 'reset'");
+fn clear_vacation_period(thermostat: &mut Thermostat, arguments: &[String]) {
+    if arguments[0] != "clear" {
+        panic!("Expected either a start and end date, or just 'clear'");
     }
 
     thermostat.new_vacation_period = Some((0, 0));
