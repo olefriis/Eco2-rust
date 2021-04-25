@@ -21,6 +21,13 @@ pub fn update_vacation_period(encrypted_settings: &Vec<u8>, secret: &Vec<u8>, va
     encrypt(secret, &decrypted_settings)
 }
 
+pub fn update_schedule_mode(encrypted_settings: &Vec<u8>, secret: &Vec<u8>, vacation_mode: u8) -> Vec<u8> {
+    let mut decrypted_settings = decrypt(secret, encrypted_settings);
+    decrypted_settings[4] = vacation_mode;
+
+    encrypt(secret, &decrypted_settings)
+}
+
 fn replace_four_bytes(value: i64, existing_bytes: &mut Vec<u8>, start_index: usize) {
     let mut counter = value;
     for i in 0..4 {
@@ -284,6 +291,21 @@ mod tests {
         assert_eq!(vacation_end, ParsedThermostat::decode_datetime(vacation_end_bytes).unwrap().timestamp());
         assert_eq!(old_decrypted_settings[0..6], decrypted_settings[0..6]);
         assert_eq!(old_decrypted_settings[14..], decrypted_settings[14..]);
+    }
+
+    #[test]
+    fn it_can_update_schedule_mode() {
+        let secret = vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65];
+        let encrypted_settings = vec![180u8, 249, 230, 196, 18, 146, 189, 34, 145, 102, 24, 26, 151, 111, 192, 189];
+        let old_decrypted_settings = decrypt(&secret, &encrypted_settings);
+        assert_eq!(1, old_decrypted_settings[4]);
+
+        let updated_encrypted_settings = update_schedule_mode(&encrypted_settings, &secret, 3);
+        let decrypted_settings = decrypt(&secret, &updated_encrypted_settings);
+
+        assert_eq!(3, decrypted_settings[4]);
+        assert_eq!(old_decrypted_settings[0..4], decrypted_settings[0..4]);
+        assert_eq!(old_decrypted_settings[5..], decrypted_settings[5..]);
     }
 
     #[test]
