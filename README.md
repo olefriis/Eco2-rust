@@ -1,10 +1,6 @@
 # Eco2-rust
 Take control of your Danfoss Eco™ 2 thermostats!
 
-Not at all done by now. It can connect to a thermostat and show its name,
-various temperatures (set-point temperatures and the room's current temperature),
-and schedules.
-
 Basically, this is a Rust version of my previous
 [C#/Xamarin version](https://github.com/olefriis/Eco2). With Rust and the
 [btleplug library](https://github.com/deviceplug/btleplug), we get Linux and
@@ -34,9 +30,6 @@ for creating the missing piece in the Eco 2 ecosystem - a hub.
 No. And if you brick your thermostats while using this tool, tough luck.
 
 ## Limitations
-Currently only reads from the thermostats. I'll add support for writing back to
-the thermostats at some point.
-
 PIN codes are not supported.
 
 In general this project is not aiming at getting full feature parity with the
@@ -154,6 +147,13 @@ To clear the vacation period, specify `clear` instead of the dates:
 $ eco2 set 0:04:2F:06:24:D1 vacation-period clear
 ```
 
+To set the schedule mode to either `manual`, `scheduled`, or `vacation`, use the
+`schedule-mode` parameter and specify the desired schedule mode:
+
+```
+$ eco2 set 0:04:2F:06:24:D1 schedule-mode manual
+```
+
 You can try to run `eco2 show` for your thermostat. It will show the same
 values as before, but at the bottom of the output you will now also see:
 
@@ -180,6 +180,9 @@ if you haven't set any updated properties on the thermostat, `eco2 read` and
 require an `eco2 read`, though, since this command can take care of reading the
 secret from the thermostat, whereas `eco2 sync` will fail if the tool does not
 know that secret.)
+
+If you do `eco2 set` followed by an `eco2 read`, the values you have set will be
+discarded. You can use this to get rid of unwanted changes to the thermostat.
 
 ### Listing thermostats
 It's sometimes nice to get an overview of which thermostats you have in your
