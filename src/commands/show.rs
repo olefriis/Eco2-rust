@@ -37,7 +37,7 @@ pub fn execute(arguments: Vec<String>) {
     println!("Saturday: {}", parsed_thermostat.schedule_saturday);
     println!("Sunday: {}", parsed_thermostat.schedule_sunday);
 
-    if thermostat.new_set_point_temperature.is_some() || thermostat.new_vacation_period.is_some() {
+    if thermostat.new_set_point_temperature.is_some() || thermostat.new_vacation_period.is_some() || thermostat.new_schedule_mode.is_some() {
         println!("");
         println!("Properties to be written back to thermostat:");
 
@@ -52,6 +52,9 @@ pub fn execute(arguments: Vec<String>) {
                 let new_vacation_end = formatted_date(Utc.timestamp(new_vacation_end, 0));
                 println!("Vacation: {} - {}", new_vacation_start, new_vacation_end);
             }
+        }
+        if let Some(new_schedule_mode) = thermostat.new_schedule_mode {
+            println!("Schedule mode: {}", ParsedThermostat::parse_schedule_mode(new_schedule_mode));
         }
     }
 }

@@ -11,18 +11,18 @@ pub struct Thermostats {
 impl Thermostats {
     pub fn save(&self) -> std::io::Result<()> {
         let serialized_thermostats = serde_json::to_string(&self)?;
-        let file_path = Thermostats::file_path()?;
+        let file_path = Self::file_path()?;
         fs::write(&file_path[..], &serialized_thermostats[..])?;
         Ok(())
     }
 
-    pub fn load() -> std::io::Result<Thermostats> {
-        let file_path = Thermostats::file_path()?;
+    pub fn load() -> std::io::Result<Self> {
+        let file_path = Self::file_path()?;
         if Path::new(&file_path[..]).exists() {
             let serialized_thermostats = fs::read_to_string(&file_path[..])?;
             Ok(serde_json::from_str(&serialized_thermostats[..])?)
         } else {
-            Ok(Thermostats {
+            Ok(Self {
                 thermostats: vec![]
             })
         }
@@ -79,6 +79,7 @@ pub struct Thermostat {
     // New values that haven't yet been saved to the thermostat
     pub new_set_point_temperature: Option<f32>,
     pub new_vacation_period: Option<(i64, i64)>,
+    pub new_schedule_mode: Option<u8>,
 }
 
 #[cfg(test)]
