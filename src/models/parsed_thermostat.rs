@@ -21,6 +21,13 @@ pub fn update_vacation_period(encrypted_settings: &Vec<u8>, secret: &Vec<u8>, va
     encrypt(secret, &decrypted_settings)
 }
 
+pub fn update_schedule_mode(encrypted_settings: &Vec<u8>, secret: &Vec<u8>, vacation_mode: u8) -> Vec<u8> {
+    let mut decrypted_settings = decrypt(secret, encrypted_settings);
+    decrypted_settings[4] = vacation_mode;
+
+    encrypt(secret, &decrypted_settings)
+}
+
 fn replace_four_bytes(value: i64, existing_bytes: &mut Vec<u8>, start_index: usize) {
     let mut counter = value;
     for i in 0..4 {
@@ -48,7 +55,7 @@ pub struct ParsedThermostat {
 }
 
 impl ParsedThermostat {
-    pub fn from_thermostat(thermostat: &Thermostat) -> ParsedThermostat {
+    pub fn from_thermostat(thermostat: &Thermostat) -> Self {
         let decrypted_name = decrypt(&thermostat.secret, &thermostat.name);
         let decrypted_temperature = decrypt(&thermostat.secret, &thermostat.temperature);
         let decrypted_settings = decrypt(&thermostat.secret, &thermostat.settings);
@@ -63,30 +70,25 @@ impl ParsedThermostat {
         let vacation_temperature = Temperature::from_byte(decrypted_settings[5]);
         let frost_protection_temperature = Temperature::from_byte(decrypted_settings[3]);
 
-        let schedule_mode = match decrypted_settings[4] {
-            0 => ScheduleMode::Manual,
-            1 => ScheduleMode::Scheduled,
-            3 => ScheduleMode::Vacation,
-            _ => panic!("Unknown schedule mode: {}", decrypted_settings[4]),
-        };
+        let schedule_mode = Self::parse_schedule_mode(decrypted_settings[4]);
 
-        let start_vacation = ParsedThermostat::decode_datetime(&decrypted_settings[6..10]);
-        let end_vacation = ParsedThermostat::decode_datetime(&decrypted_settings[10..14]);
+        let start_vacation = Self::decode_datetime(&decrypted_settings[6..10]);
+        let end_vacation = Self::decode_datetime(&decrypted_settings[10..14]);
         let vacation_period = match (start_vacation, end_vacation) {
             (Some(start), Some(end)) => Some((start, end)),
             _ => None,
         };
 
-        let schedule_monday = ParsedThermostat::decode_daily_schedule(&decrypted_schedule_1[2..8]);
-        let schedule_tuesday = ParsedThermostat::decode_daily_schedule(&decrypted_schedule_1[8..14]);
-        let schedule_wednesday = ParsedThermostat::decode_daily_schedule(&decrypted_schedule_1[14..20]);
-        let schedule_thursday = ParsedThermostat::decode_daily_schedule(&decrypted_schedule_2[0..6]);
-        let schedule_friday = ParsedThermostat::decode_daily_schedule(&decrypted_schedule_2[6..12]);
-        let schedule_saturday = ParsedThermostat::decode_daily_schedule(&decrypted_schedule_3[0..6]);
-        let schedule_sunday = ParsedThermostat::decode_daily_schedule(&decrypted_schedule_3[6..12]);
+        let schedule_monday = Self::decode_daily_schedule(&decrypted_schedule_1[2..8]);
+        let schedule_tuesday = Self::decode_daily_schedule(&decrypted_schedule_1[8..14]);
+        let schedule_wednesday = Self::decode_daily_schedule(&decrypted_schedule_1[14..20]);
+        let schedule_thursday = Self::decode_daily_schedule(&decrypted_schedule_2[0..6]);
+        let schedule_friday = Self::decode_daily_schedule(&decrypted_schedule_2[6..12]);
+        let schedule_saturday = Self::decode_daily_schedule(&decrypted_schedule_3[0..6]);
+        let schedule_sunday = Self::decode_daily_schedule(&decrypted_schedule_3[6..12]);
 
-        ParsedThermostat {
-            name: ParsedThermostat::decode_name(&decrypted_name),
+        Self {
+            name: Self::decode_name(&decrypted_name),
             battery_percentage,
             set_point_temperature,
             room_temperature,
@@ -101,6 +103,15 @@ impl ParsedThermostat {
             schedule_friday,
             schedule_saturday,
             schedule_sunday,
+        }
+    }
+
+    pub fn parse_schedule_mode(schedule_mode: u8) -> ScheduleMode {
+        match schedule_mode {
+            0 => ScheduleMode::Manual,
+            1 => ScheduleMode::Scheduled,
+            3 => ScheduleMode::Vacation,
+            _ => panic!("Unknown schedule mode: {}", schedule_mode),
         }
     }
 
@@ -172,12 +183,12 @@ pub struct Temperature {
 }
 
 impl Temperature {
-    fn from_byte(byte: u8) -> Temperature {
-        Temperature { value: byte.clone() }
+    fn from_byte(byte: u8) -> Self {
+        Self { value: byte.clone() }
     }
 
-    fn from_degrees_celcius(degrees_celcius: f32) -> Temperature {
-        Temperature { value: (degrees_celcius * 2.0) as u8 }
+    fn from_degrees_celcius(degrees_celcius: f32) -> Self {
+        Self { value: (degrees_celcius * 2.0) as u8 }
     }
 
     pub fn in_degrees_celcius(&self) -> f32 {
@@ -201,9 +212,9 @@ pub enum ScheduleMode {
 impl fmt::Display for ScheduleMode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ScheduleMode::Manual => write!(f, "Manual"),
-            ScheduleMode::Scheduled => write!(f, "Scheduled"),
-            ScheduleMode::Vacation => write!(f, "Vacation"),
+            Self::Manual => write!(f, "Manual"),
+            Self::Scheduled => write!(f, "Scheduled"),
+            Self::Vacation => write!(f, "Vacation"),
         }
     }
 }
@@ -280,6 +291,21 @@ mod tests {
         assert_eq!(vacation_end, ParsedThermostat::decode_datetime(vacation_end_bytes).unwrap().timestamp());
         assert_eq!(old_decrypted_settings[0..6], decrypted_settings[0..6]);
         assert_eq!(old_decrypted_settings[14..], decrypted_settings[14..]);
+    }
+
+    #[test]
+    fn it_can_update_schedule_mode() {
+        let secret = vec![215u8, 91, 125, 126, 14, 118, 62, 143, 121, 48, 110, 175, 112, 218, 245, 65];
+        let encrypted_settings = vec![180u8, 249, 230, 196, 18, 146, 189, 34, 145, 102, 24, 26, 151, 111, 192, 189];
+        let old_decrypted_settings = decrypt(&secret, &encrypted_settings);
+        assert_eq!(1, old_decrypted_settings[4]);
+
+        let updated_encrypted_settings = update_schedule_mode(&encrypted_settings, &secret, 3);
+        let decrypted_settings = decrypt(&secret, &updated_encrypted_settings);
+
+        assert_eq!(3, decrypted_settings[4]);
+        assert_eq!(old_decrypted_settings[0..4], decrypted_settings[0..4]);
+        assert_eq!(old_decrypted_settings[5..], decrypted_settings[5..]);
     }
 
     #[test]

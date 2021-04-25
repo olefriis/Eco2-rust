@@ -3,6 +3,7 @@ use chrono::prelude::*;
 
 const SET_POINT_TEMPERATURE: &str = "set-point-temperature";
 const VACATION_PERIOD: &str = "vacation-period";
+const SCHEDULE_MODE: &str = "schedule-mode";
 
 pub fn execute(arguments: Vec<String>) {
     if arguments.len() < 3 {
@@ -26,7 +27,8 @@ pub fn execute(arguments: Vec<String>) {
     match property {
         SET_POINT_TEMPERATURE => set_set_point_temperature(&mut thermostat, remaining_arguments),
         VACATION_PERIOD => set_vacation_period(&mut thermostat, remaining_arguments),
-        _ => panic!("Unknown property: {}. Only set-point-temperature and vacation-period supported supported for now.", property),
+        SCHEDULE_MODE => set_schedule_mode(&mut thermostat, remaining_arguments),
+        _ => panic!("Unknown property: {}. Expected one of set-point-temperature, vacation-period, and schedule-mode", property),
     }
 
     thermostats.push(thermostat);
@@ -67,6 +69,14 @@ fn clear_vacation_period(thermostat: &mut Thermostat, arguments: &[String]) {
     thermostat.new_vacation_period = Some((0, 0));
 }
 
+fn set_schedule_mode(thermostat: &mut Thermostat, arguments: &[String]) {
+    if arguments.len() != 1 {
+        panic!("Expected just one argument as schedule mode, got {}", arguments.len());
+    }
+
+    thermostat.new_schedule_mode = Some(parse_schedule_mode(&arguments[0]));
+}
+
 fn parse_date_time(arg: &str) -> i64 {
     let parsed_date_time = Local.datetime_from_str(arg, "%Y-%m-%d %H:%M").expect("Could not parse date time. Should be in format YYYY-mm-dd HH:MM");
     let minutes = parsed_date_time.minute();
@@ -76,10 +86,19 @@ fn parse_date_time(arg: &str) -> i64 {
     parsed_date_time.timestamp()
 }
 
+fn parse_schedule_mode(arg: &str) -> u8 {
+    match arg {
+        "manual" => 0,
+        "scheduled" => 1,
+        "vacation" => 3,
+        _ => panic!("Unknown schedule mode: {}. Expected one of manual, scheduled, and vacation", arg)
+    }
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::parsed_thermostat::{ParsedThermostat, ScheduleMode};
 
     #[test]
     fn it_can_parse_vacation_date() {
@@ -98,5 +117,18 @@ mod tests {
     #[should_panic(expected = "Could not parse date time. Should be in format YYYY-mm-dd HH:MM")]
     fn it_panics_when_given_invalid_date_format() {
         parse_date_time("24/5 2021 13:07");
+    }
+
+    #[test]
+    fn it_can_parse_schedule_mode() {
+        assert_eq!(ParsedThermostat::parse_schedule_mode(parse_schedule_mode("manual")), ScheduleMode::Manual);
+        assert_eq!(ParsedThermostat::parse_schedule_mode(parse_schedule_mode("scheduled")), ScheduleMode::Scheduled);
+        assert_eq!(ParsedThermostat::parse_schedule_mode(parse_schedule_mode("vacation")), ScheduleMode::Vacation);
+    }
+
+    #[test]
+    #[should_panic(expected = "Unknown schedule mode: abc. Expected one of manual, scheduled, and vacation")]
+    fn it_panics_on_unknown_schedule_mode() {
+        parse_schedule_mode("abc");
     }
 }
