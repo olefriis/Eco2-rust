@@ -8,7 +8,7 @@ use std::io;
 use btleplug::{Result, Error};
 
 #[cfg(target_os = "linux")]
-use btleplug::bluez::{adapter::ConnectedAdapter, manager::Manager};
+use btleplug::bluez::{adapter::Adapter, manager::Manager};
 #[cfg(target_os = "macos")]
 use btleplug::corebluetooth::{adapter::Adapter, manager::Manager};
 #[cfg(target_os = "windows")]
@@ -32,17 +32,9 @@ pub const SCHEDULE_3: &str = "1002000f-2749-0001-0000-00805f9b042f";
 // this will be fixed in the future.
 //
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
 fn get_central(manager: &Manager) -> Adapter {
     let adapters = manager.adapters().unwrap();
     adapters.into_iter().nth(0).unwrap()
-}
-
-#[cfg(target_os = "linux")]
-fn get_central(manager: &Manager) -> ConnectedAdapter {
-    let adapters = manager.adapters().unwrap();
-    let adapter = adapters.into_iter().nth(0).unwrap();
-    adapter.connect().unwrap()
 }
 
 pub struct ScannedBluetoothPeripheral {
